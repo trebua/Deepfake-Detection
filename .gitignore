@@ -1,3 +1,4 @@
 download-FaceForensics.py
 data/*
 processed/*
+__pycache__

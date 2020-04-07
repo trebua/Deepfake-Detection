@@ -3,6 +3,7 @@ import cv2
 import random
 import pathlib
 from time import time
+from face_detection.face_detection import get_faces
 
 # Paths needed for reading and storing data
 current_dir = str(pathlib.Path(__file__).parent.absolute())
@@ -33,7 +34,7 @@ def create_processed_dirs():
     return processed_path
 
 
-def preprocess_videos(dimensions=(500,500), sample=5):
+def preprocess_videos(dimensions=(200,200), sample=2, count=False):
     '''
     Runs through all the videos downloaded and saves 'samples' amount of frames with 'dimensions' dimensions.
 
@@ -42,6 +43,7 @@ def preprocess_videos(dimensions=(500,500), sample=5):
     '''
     processed_path = create_processed_dirs()
     for label, label_path in datasets.items():  # Loop through labels (real, fake) with their corresponding dataset paths
+        processed = 0
         path = current_dir + data_dir + label_path
         videos = os.listdir(path)
         avg_time = 0
@@ -51,15 +53,19 @@ def preprocess_videos(dimensions=(500,500), sample=5):
             video = cv2.VideoCapture(video_path)
             image_path = processed_path + label + '/' + video_name.split('.')[0]
 
-            # Saves frames from a random sampled subset of the video
+            # Saves faces from a random sampled subset of the video
             frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
             sampled_frames = random.sample([i for i in range(frame_count)], sample) 
             for i in sampled_frames:
                 video.set(1,i)
-                name = f'{image_path}-{i}.jpg'
+                name = f'{image_path}-{i}-'
                 _, frame = video.read() 
-                frame = cv2.resize(frame, dimensions, interpolation = cv2.INTER_AREA)
-                cv2.imwrite(name, frame)
+                faces = get_faces(frame)
+                for j, (x,y,w,h) in enumerate(faces):
+                    face = frame[y:y+h, x:x+w]
+                    face = cv2.resize(face, dimensions, interpolation = cv2.INTER_AREA)
+                    filename = f'{name}face{j}.jpg'
+                    cv2.imwrite(filename, face)
             video.release() 
             cv2.destroyAllWindows()
 
@@ -68,6 +74,10 @@ def preprocess_videos(dimensions=(500,500), sample=5):
             avg_time = (avg_time*(c)+time_spent)/(c+1)
             remaining = len(videos)-c
             print(f'{c+1}/{len(videos)} processed. {round(avg_time*remaining,2)}s left.', end='\r')
+            processed += 1
+            if processed >= count:
+                break
+            
 
     
-preprocess_videos()
+preprocess_videos(count=2)
