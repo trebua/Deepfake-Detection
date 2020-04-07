@@ -34,7 +34,7 @@ def create_processed_dirs():
     return processed_path
 
 
-def preprocess_videos(dimensions=(150,150), sample=2, count=False):
+def preprocess_videos(dimensions=(150,150), sample=1, count=False):
     '''
     Runs through all the videos downloaded and saves 'samples' amount of frames with 'dimensions' dimensions.
 
@@ -63,9 +63,10 @@ def preprocess_videos(dimensions=(150,150), sample=2, count=False):
                 faces, _ = cv.detect_face(frame)
                 for j, (x0,y0,x1,y1) in enumerate(faces):
                     face = frame[y0:y1, x0:x1]
-                    face = cv2.resize(face, dimensions, interpolation = cv2.INTER_AREA)
-                    filename = f'{name}face{j+1}.jpg'
-                    cv2.imwrite(filename, face)
+                    if len(face) > 0 and len(face[0] > 0):
+                        face = cv2.resize(face, dimensions, interpolation = cv2.INTER_AREA)
+                        filename = f'{name}face{j+1}.jpg'
+                        cv2.imwrite(filename, face)
             video.release() 
             cv2.destroyAllWindows()
 
@@ -73,11 +74,11 @@ def preprocess_videos(dimensions=(150,150), sample=2, count=False):
             time_spent = time()-start_time
             avg_time = (avg_time*(c)+time_spent)/(c+1)
             remaining = len(videos)-c
-            print(f'{c+1}/{len(videos)} processed. {round(avg_time*remaining,2)}s left.', end='\r')
+            print(f'{c+1}/{len(videos)} processed. {int(avg_time*remaining)}s left.', end='\r')
             processed += 1
             if processed >= count:
                 break
             
 
     
-preprocess_videos(count=2)
+preprocess_videos(count=400)

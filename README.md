@@ -3,6 +3,7 @@ Project in the module "CS4225/CS5425 Big Data Systems for Data Science" at the N
 
 ## Prerequisites
 * OpenCV: ```python -m pip install opencv-python```
+* CVLib: ```python -m pip install cvlib```
 
 ## Dataset
 The dataset should be stored in a folder named *data*, using the dataset gathered with these instructions:
