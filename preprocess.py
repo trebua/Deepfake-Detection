@@ -3,7 +3,7 @@ import cv2
 import random
 import pathlib
 from time import time
-from face_detection.face_detection import get_faces
+import cvlib as cv
 
 # Paths needed for reading and storing data
 current_dir = str(pathlib.Path(__file__).parent.absolute())
@@ -34,7 +34,7 @@ def create_processed_dirs():
     return processed_path
 
 
-def preprocess_videos(dimensions=(200,200), sample=2, count=False):
+def preprocess_videos(dimensions=(150,150), sample=2, count=False):
     '''
     Runs through all the videos downloaded and saves 'samples' amount of frames with 'dimensions' dimensions.
 
@@ -60,11 +60,11 @@ def preprocess_videos(dimensions=(200,200), sample=2, count=False):
                 video.set(1,i)
                 name = f'{image_path}-{i}-'
                 _, frame = video.read() 
-                faces = get_faces(frame)
-                for j, (x,y,w,h) in enumerate(faces):
-                    face = frame[y:y+h, x:x+w]
+                faces, _ = cv.detect_face(frame)
+                for j, (x0,y0,x1,y1) in enumerate(faces):
+                    face = frame[y0:y1, x0:x1]
                     face = cv2.resize(face, dimensions, interpolation = cv2.INTER_AREA)
-                    filename = f'{name}face{j}.jpg'
+                    filename = f'{name}face{j+1}.jpg'
                     cv2.imwrite(filename, face)
             video.release() 
             cv2.destroyAllWindows()
