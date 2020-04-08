@@ -34,11 +34,18 @@ def create_processed_dirs():
     return processed_path
 
 
-def preprocess_videos(dimensions=(150,150), sample=1, count=False):
+def preprocess_videos(dimensions=(150,150), sample=1, count=False, face_threshold=0.9, face_attempts=5):
     '''
-    Runs through all the videos downloaded and saves 'samples' amount of frames with 'dimensions' dimensions.
+    Runs through all the videos downloaded and stores the faces found in each video.
 
-    Returns
+    Args:
+        dimensions: What width and height the frame will be stored with
+        sample: How many frames will be saved from each video
+        count: How many videos will be processed from real and fake
+        face_threshold: How strict the cvlib face recognition should be. Higher is stricter and yields clearer faces.
+        face_attempts: How many frames will be tested for faces before giving up on a video
+
+    Returns:
         None
     '''
     processed_path = create_processed_dirs()
@@ -55,12 +62,18 @@ def preprocess_videos(dimensions=(150,150), sample=1, count=False):
 
             # Saves faces from a random sampled subset of the video
             frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-            sampled_frames = random.sample([i for i in range(frame_count)], sample) 
-            for i in sampled_frames:
-                video.set(1,i)
-                name = f'{image_path}-{i}-'
+            frames = [i for i in range(frame_count)]
+            random.shuffle(frames)  # Shuffles the frames in order to pick next frame randomly
+            frames_saved = 0
+            attempts = 0
+            while frames_saved < sample and attempts < face_attempts:
+                attempts +=1
+                frame_index = frames[frames_saved]
+                video.set(1,frame_index)
+                name = f'{image_path}-{frames_saved+1}-'
                 _, frame = video.read() 
-                faces, _ = cv.detect_face(frame)
+                faces, confidences = cv.detect_face(frame, threshold=face_threshold)
+                frames_saved += len(faces) > 0
                 for j, (x0,y0,x1,y1) in enumerate(faces):
                     face = frame[y0:y1, x0:x1]
                     if len(face) > 0 and len(face[0] > 0):
