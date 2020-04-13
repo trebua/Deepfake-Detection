@@ -4,6 +4,7 @@ import random
 import pathlib
 from time import time
 import cvlib as cv
+import numpy as np
 
 # Paths needed for reading and storing data
 current_dir = str(pathlib.Path(__file__).parent.absolute())
@@ -34,7 +35,7 @@ def create_processed_dirs():
     return processed_path
 
 
-def preprocess_videos(dimensions=(150,150), sample=1, count=False, face_threshold=0.9, face_attempts=5):
+def preprocess_videos(dimensions=(150,150), sample=1, count=False, face_threshold=0.9, face_attempts=5, save=True):
     '''
     Runs through all the videos downloaded and stores the faces found in each video.
 
@@ -44,10 +45,12 @@ def preprocess_videos(dimensions=(150,150), sample=1, count=False, face_threshol
         count: How many videos will be processed from real and fake
         face_threshold: How strict the cvlib face recognition should be. Higher is stricter and yields clearer faces.
         face_attempts: How many frames will be tested for faces before giving up on a video
+        save: If the resulting training data-arrays should be saved 
 
     Returns:
         None
     '''
+    X, y = [], []
     processed_path = create_processed_dirs()
     for label, label_path in datasets.items():  # Loop through labels (real, fake) with their corresponding dataset paths
         processed = 0
@@ -79,7 +82,11 @@ def preprocess_videos(dimensions=(150,150), sample=1, count=False, face_threshol
                     if len(face) > 0 and len(face[0] > 0):
                         face = cv2.resize(face, dimensions, interpolation = cv2.INTER_AREA)
                         filename = f'{name}face{j+1}.jpg'
-                        cv2.imwrite(filename, face)
+                        #cv2.imwrite(filename, face) uncomment to save the processed faces (debugging)
+                        face = face.astype(np.float32)
+                        face /= 255
+                        X.append(face)
+                        y.append(int(label =='real'))
             video.release() 
             cv2.destroyAllWindows()
 
@@ -91,7 +98,10 @@ def preprocess_videos(dimensions=(150,150), sample=1, count=False, face_threshol
             processed += 1
             if processed >= count:
                 break
-            
-
+    X, y = np.array(X), np.array(y)
+    if save:
+        np.save(f'{processed_path}X', X)
+        np.save(f'{processed_path}y', y)
+    return X, y
     
 preprocess_videos(count=400)
