@@ -11,8 +11,8 @@ current_dir = str(pathlib.Path(__file__).parent.absolute())
 data_dir = '/data'
 processed_dir = '/processed/'
 datasets = {
-    'real': '/original_sequences/actors/c40/videos/',
-    'fake': '/manipulated_sequences/DeepFakeDetection/c40/videos/'
+    'real': '/original_sequences/actors/c23/videos/',
+    'fake': '/manipulated_sequences/DeepFakeDetection/c23/videos/'
 }
 
 
@@ -35,7 +35,7 @@ def create_processed_dirs():
     return processed_path
 
 
-def preprocess_videos(dimensions=(150,150), sample=1, count=False, face_threshold=0.9, face_attempts=5, save=True):
+def preprocess_videos(dimensions=(100,100), sample=10, count=False, face_threshold=0.90, face_attempts=5, save=True):
     '''
     Runs through all the videos downloaded and stores the faces found in each video.
 
@@ -70,19 +70,21 @@ def preprocess_videos(dimensions=(150,150), sample=1, count=False, face_threshol
             frames_saved = 0
             attempts = 0
             while frames_saved < sample and attempts < face_attempts:
-                attempts +=1
                 frame_index = frames[frames_saved]
                 video.set(1,frame_index)
                 name = f'{image_path}-{frames_saved+1}-'
                 _, frame = video.read() 
                 faces, confidences = cv.detect_face(frame, threshold=face_threshold)
-                frames_saved += len(faces) > 0
+                if not len(faces):
+                    attempts +=1
+                else:
+                    frames_saved += 1
                 for j, (x0,y0,x1,y1) in enumerate(faces):
                     face = frame[y0:y1, x0:x1]
                     if len(face) > 0 and len(face[0] > 0):
                         face = cv2.resize(face, dimensions, interpolation = cv2.INTER_AREA)
                         filename = f'{name}face{j+1}.jpg'
-                        #cv2.imwrite(filename, face) uncomment to save the processed faces (debugging)
+                        #cv2.imwrite(filename, face) #uncomment to save the processed faces (debugging)
                         face = face.astype(np.float32)
                         face /= 255
                         X.append(face)
@@ -96,7 +98,7 @@ def preprocess_videos(dimensions=(150,150), sample=1, count=False, face_threshol
             remaining = len(videos)-c
             print(f'{c+1}/{len(videos)} processed. {int(avg_time*remaining)}s left.', end='\r')
             processed += 1
-            if processed >= count:
+            if count and processed >= count:
                 break
     X, y = np.array(X), np.array(y)
     if save:
@@ -104,4 +106,4 @@ def preprocess_videos(dimensions=(150,150), sample=1, count=False, face_threshol
         np.save(f'{processed_path}y', y)
     return X, y
     
-preprocess_videos(count=400)
+preprocess_videos()
