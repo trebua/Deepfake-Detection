@@ -11,11 +11,10 @@ sc = pyspark.SparkContext('local[*]')
 
 # Paths needed for reading and storing data
 current_dir = str(pathlib.Path(__file__).parent.absolute())
-real_path = f"{current_dir}/data/original_sequences/actors/c40/videos/"
-fake_path = f"{current_dir}/data/manipulated_sequences/DeepFakeDetection/c40/videos/"
+real_path = f"{current_dir}/data/original_sequences/actors/c23/videos/"
+fake_path = f"{current_dir}/data/manipulated_sequences/DeepFakeDetection/c23/videos/"
 
-def get_frames(label_path, sample=1, face_threshold=0.9, dimensions=(10,10)):
-    global total; global processed; global avg_time
+def get_frames(label_path, sample=1, face_threshold=0.9, dimensions=(100,100)):
     start_time = time()
     result = []
     label, path = label_path
@@ -39,9 +38,10 @@ def get_frames(label_path, sample=1, face_threshold=0.9, dimensions=(10,10)):
     video.release() 
     cv2.destroyAllWindows()
     time_spent = time()-start_time
+    global total; global processed; global avg_time; global cores
     avg_time = (avg_time*(processed)+time_spent)/(processed+1)
-    remaining = total-processed
-    processed += 1; print(f'{processed}/{total} processed. {int(avg_time*remaining)}s left.', end='\r')
+    remaining = (total-processed)/cores
+    processed += 1; print(f'{processed}/{total//cores} processed. {int(avg_time*remaining)}s left.')
     return result
 
 reals = [(1, real_path + '/' + path) for path in os.listdir(real_path)]
@@ -49,8 +49,9 @@ fakes = [(0, fake_path + '/' + path) for path in os.listdir(fake_path)]
 movies = reals + fakes
 total = len(movies)
 processed, avg_time = 0, 0
-rdd = sc.parallelize(movies,1)
+cores = 8
+rdd = sc.parallelize(movies)
 label_face = rdd.map(lambda label_path: get_frames(label_path)).reduce(lambda res1, res2: res1 + res2)
-X, y = zip(*label_face)
-np.save(f'{current_dir}X1', np.array(X))
-np.save(f'{current_dir}y1', np.array(y))
+y, X = zip(*label_face)
+np.save(f'{current_dir}/X1', np.array(X))
+np.save(f'{current_dir}/y1', np.array(y))
