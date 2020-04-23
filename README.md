@@ -6,6 +6,9 @@ Project in the module "CS4225/CS5425 Big Data Systems for Data Science" at the N
 * CVLib: ```pip install cvlib```
 * Pyspark: ```pip install pyspark``` (and some other configurations)
 * Numpy: ```pip install numpy```
+* Keras: ```pip install keras```
+* Tensorflow: ```pip install tensorflow```
+* MatPlotLib: ```pip install matplotlib```
 
 ## Dataset
 The dataset should be stored in a folder named *data*, using the dataset gathered with these instructions:
