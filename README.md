@@ -1,5 +1,7 @@
 # Deepfake-Detection
-Project in the module "CS4225/CS5425 Big Data Systems for Data Science" at the National University of Singapore.
+Using the big data engine Apache Spark to preprocess and Keras to train a Convolutional Neural Network based on a labelled [dataset](https://ai.googleblog.com/2019/09/contributing-data-to-deepfake-detection.html) of deepfakes and real videos. 
+
+The project is done as a part of the module "CS4225/CS5425 Big Data Systems for Data Science" at the National University of Singapore.
 
 ## Prerequisites
 * OpenCV: ```pip install opencv-python```
@@ -14,7 +16,7 @@ Project in the module "CS4225/CS5425 Big Data Systems for Data Science" at the N
 The dataset should be stored in a folder named *data*, using the dataset gathered with these instructions:
 https://github.com/ondyari/FaceForensics/blob/master/dataset/README.md
 
-The preprocessing is now done with the assumption that the following commands are run:
+The preprocessing is now done with the assumption that the following commands are run in the project directory:
 
 ```python download-FaceForensics.py path/to/project/data -d DeepFakeDetection -c c23 -t videos```
 
@@ -40,4 +42,9 @@ X contains samples faces and y contains their corresponding label of real or fak
 
 The real videos will have a higher amount of samples in order to balance the labels.
 
+## How to use
+The trained model can be used with a command line interface:
 
+```python predict.py path/to/video```
+
+This will output the classification of real or fake, and how confident the decision is.
