@@ -1,9 +1,13 @@
 '''
-Distributed preprocessing; can be run locally, standalone or in a cluster.
+The preprocessing implemented in pyspark.
+
+The distributed preprocessing; can be run locally, standalone or in a cluster.
 
 Important to set correct memory configurations, a working example:
 spark-submit 
---conf spark.driver.memory=8g --conf spark.executor.memory=8g --conf spark.memory.offHeap.enabled=true 
+--conf spark.driver.memory=8g 
+--conf spark.executor.memory=8g 
+--conf spark.memory.offHeap.enabled=true 
 --conf spark.memory.offHeap.size=8g 
 --conf spark.driver.maxResultSize=8g
 --master local[*] spark_preprocess.py
@@ -17,7 +21,7 @@ import random
 import cvlib as cv
 import numpy as np
 
-sc = pyspark.SparkContext('local[*]')
+sc = pyspark.SparkContext()
 
 # Paths needed for reading and storing data
 current_dir = str(pathlib.Path(__file__).parent.absolute())

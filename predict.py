@@ -1,3 +1,7 @@
+'''
+A command line interface for inputting a video and getting a classification and confidence as output.
+'''
+
 from keras.models import model_from_json
 import pathlib
 import cv2
@@ -13,7 +17,7 @@ with open(f'{current_dir}/model/model.json', 'r') as json_file:
     model = model_from_json(json_file.read())
     model.load_weights(f'{current_dir}/model/model.h5')
 
-def predict_video(path, model=model, sample=29):
+def predict_video(path, model=model, sample=19):
     '''
     Takes in a video path and samples faces from it. 
     The model predicts whether the individual frames are real or fake, and the votes are aggregated to
@@ -23,6 +27,9 @@ def predict_video(path, model=model, sample=29):
         path: path to the video
         model: which model to use for the prediction
         sample: how many frames will be attempted to be extracted
+    
+    Returns:
+        None - but prints REAL/FAKE confidence%
     '''
     votes = []
     video = cv2.VideoCapture(path)
@@ -34,11 +41,14 @@ def predict_video(path, model=model, sample=29):
         _, frame = video.read() 
         faces, _ = cv.detect_face(frame, threshold=0.9)
         for j, (x0,y0,x1,y1) in enumerate(faces):
-            face = frame[y0:y1, x0:x1]
-            face = cv2.resize(face, (100,100), interpolation = cv2.INTER_AREA)
-            face = face.astype(np.float32)
-            face /= 255
-            detections.append(face)
+            try:
+                face = frame[y0:y1, x0:x1]
+                face = cv2.resize(face, (100,100), interpolation = cv2.INTER_AREA)
+                face = face.astype(np.float32)
+                face /= 255
+                detections.append(face)
+            except Exception:
+                pass
         vote = 0
         for face in detections:
             face = face.reshape((1,len(face[0]),len(face[1]),3))
@@ -56,9 +66,7 @@ def predict_video(path, model=model, sample=29):
     video_name = os.path.basename(path)
     print(f'{video_name}: {result} {round(conf,2)}%')
 
-
 my_parser = argparse.ArgumentParser(description='Determine whether a video is real or fake.')
 my_parser.add_argument('--path','-p', action='store', type=str, help='The path to the video to be determined.')
 args = my_parser.parse_args()
-path = args.path
-predict_video(path)
+predict_video(args.path)

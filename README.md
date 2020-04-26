@@ -11,12 +11,17 @@ The project is done as a part of the module "CS4225/CS5425 Big Data Systems for 
 * Keras: ```pip install keras```
 * Tensorflow: ```pip install tensorflow```
 * MatPlotLib: ```pip install matplotlib```
+* Pydot: ```pip install pydot```
+
+Or simply:
+
+```pip install opencv-python cvlib pyspark numpy keras tensorflow matplotlib pytdot```
 
 ## Dataset
 The dataset should be stored in a folder named *data*, using the dataset gathered with these instructions:
 https://github.com/ondyari/FaceForensics/blob/master/dataset/README.md
 
-The preprocessing is now done with the assumption that the following commands are run in the project directory:
+The preprocessing is now done with the assumption that the following commands are run:
 
 ```python download-FaceForensics.py path/to/project/data -d DeepFakeDetection -c c23 -t videos```
 
@@ -31,7 +36,9 @@ The following command can be used when in standalone mode (after setting up mast
 
 ```
 spark-submit 
---conf spark.driver.memory=8g --conf spark.executor.memory=8g --conf spark.memory.offHeap.enabled=true 
+--conf spark.driver.memory=8g 
+--conf spark.executor.memory=8g 
+--conf spark.memory.offHeap.enabled=true 
 --conf spark.memory.offHeap.size=8g 
 --conf spark.driver.maxResultSize=8g
 --master local[*] spark_preprocess.py
@@ -42,9 +49,16 @@ X contains samples faces and y contains their corresponding label of real or fak
 
 The real videos will have a higher amount of samples in order to balance the labels.
 
+## Convolutional neural network
+The model is a CNN, and can be trained in CNN.py or the notebook (with plotting) train_model.ipynb
+
+It has the following architecture:
+
+![CNN architecture](./figures/architecture.jpeg)
+
 ## How to use
 The trained model can be used with a command line interface:
 
-```python predict.py path/to/video```
+```python predict.py --path <path-to-video>```
 
 This will output the classification of real or fake, and how confident the decision is.

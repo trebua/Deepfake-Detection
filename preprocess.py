@@ -1,3 +1,8 @@
+'''
+The baseline for preprocessing without Spark. Used to as a prototype for the Spark preprocessing and to quickly produce datasets.
+See spark_preprocess.py for the final program used to generate the datasets used.
+'''
+
 import os
 import cv2
 import random
@@ -6,33 +11,13 @@ from time import time
 import cvlib as cv
 import numpy as np
 
-# Paths needed for reading and storing data
+# Paths needed for reading data
 current_dir = str(pathlib.Path(__file__).parent.absolute())
 data_dir = '/data'
-processed_dir = '/processed/'
 datasets = {
     'real': '/original_sequences/actors/c23/videos/',
     'fake': '/manipulated_sequences/DeepFakeDetection/c23/videos/'
 }
-
-
-def create_processed_dirs():
-    '''
-    Creates the directory structures processed/fake and processed/real
-
-    Returns:
-        path to the folder where to processed frames will be stored
-    '''
-    processed_path = current_dir + processed_dir
-    if not os.path.exists(processed_path):
-        os.makedirs(processed_path)
-    real_dir = processed_path + 'real'
-    fake_dir = processed_path + 'fake'
-    if not os.path.exists(real_dir):
-        os.makedirs(real_dir)
-    if not os.path.exists(fake_dir):
-        os.makedirs(fake_dir)
-    return processed_path
 
 
 def preprocess_videos(dimensions=(100,100), base_sample=5, count=False, face_threshold=0.90, base_attempts=50, ratio=9):
@@ -52,7 +37,6 @@ def preprocess_videos(dimensions=(100,100), base_sample=5, count=False, face_thr
         None
     '''
     X, y = [], []
-    processed_path = create_processed_dirs()
     for label, label_path in datasets.items():  # Loop through labels (real, fake) with their corresponding dataset paths
         path = current_dir + data_dir + label_path
         videos = os.listdir(path)
@@ -68,14 +52,11 @@ def preprocess_videos(dimensions=(100,100), base_sample=5, count=False, face_thr
             start_time = time()
             video_path = path + video_name
             video = cv2.VideoCapture(video_path)
-            image_path = processed_path + label + '/' + video_name.split('.')[0]
-
             # Saves faces from a random sampled subset of the video
             frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
             frames = [i for i in range(frame_count)]
             random.shuffle(frames)  # Shuffles the frames in order to pick next frame randomly
-            frames_saved = 0
-            attempts = 0
+            frames_saved, attempts = 0, 0
             while frames_saved < sample and attempts < max_attempts and attempts < frame_count:
                 try:
                     saved = False
@@ -106,9 +87,8 @@ def preprocess_videos(dimensions=(100,100), base_sample=5, count=False, face_thr
             processed += 1
             if count and processed >= count:
                 break
-    X, y = np.array(X), np.array(y)
-    np.save(f'{processed_path}X', X)
-    np.save(f'{processed_path}y', y)
+    np.save(f'{current_dir}X', np.array(X))
+    np.save(f'{current_dir}y', np.array(y))
     return X, y
     
 preprocess_videos()
