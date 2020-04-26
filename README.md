@@ -1,5 +1,7 @@
-# Deepfake-Detection
-Using the big data engine Apache Spark to preprocess and Keras to train a Convolutional Neural Network based on a labelled [dataset](https://ai.googleblog.com/2019/09/contributing-data-to-deepfake-detection.html) of deepfakes and real videos. 
+# Deepfake Detection
+Deepfake detection made with the big data engine Apache Spark and the Neural Network library Keras.
+
+PySpark is used to distribute the preprocessing of a labelled [dataset](https://ai.googleblog.com/2019/09/contributing-data-to-deepfake-detection.html) containing >3000 videos, while Keras is used to build and train a Convolutional Neural Network to classify videos as real or fake. 
 
 The project is done as a part of the module "CS4225/CS5425 Big Data Systems for Data Science" at the National University of Singapore.
 
@@ -30,7 +32,7 @@ and
 ```python download-FaceForensics.py path/to/project/data -d DeepFakeDetection_original -c c23 -t videos```
 
 ## Preprocessing
-The preprocessing is distributed with pyspark. It can be run locally, standalone or in a cluster.
+The preprocessing is distributed with PySpark. It can be run locally, standalone or in a cluster.
 
 The following command can be used when in standalone mode (after setting up master and workers):
 
@@ -51,14 +53,14 @@ X contains samples faces and y contains their corresponding label of real or fak
 
 The real videos will have a higher amount of samples in order to balance the labels.
 
-## Convolutional neural network
+## Convolutional Neural Network
 The model is a CNN, and can be trained in CNN.py or the notebook (with plotting) train_model.ipynb
 
 It has the following architecture:
 
 ![CNN architecture](./figures/architecture_custom.PNG)
 
-## How to use
+## How To Use
 The trained model can be used with a command line interface:
 
 ```python predict.py --path <path-to-video>```
