@@ -66,3 +66,10 @@ The trained model can be used with a command line interface:
 This will output the classification of real or fake, and how confident the decision is.
 
 ![Interface](./figures/interface.PNG)
+
+## Results
+### Accuracy and Loss
+![Accuracy](./figures/accuracy.png) ![Loss](./figures/loss.png)
+
+### Confusion matrix and ROC
+<img src="./figures/confusion.png" width="382.5" alt="Confusion matrix">       <img src="./figures/ROC.png" alt="ROC">
