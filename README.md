@@ -47,6 +47,8 @@ spark-submit
 This runs the preprocessing with the default parameters, and stores the result in two numpy arrays; X and y.
 X contains samples faces and y contains their corresponding label of real or fake. 
 
+![Preprocessing pipeline](./figures/preprocessing_pipeline.PNG)
+
 The real videos will have a higher amount of samples in order to balance the labels.
 
 ## Convolutional neural network
@@ -54,7 +56,7 @@ The model is a CNN, and can be trained in CNN.py or the notebook (with plotting)
 
 It has the following architecture:
 
-![CNN architecture](./figures/architecture.jpeg)
+![CNN architecture](./figures/architecture_custom.PNG)
 
 ## How to use
 The trained model can be used with a command line interface:
@@ -62,3 +64,5 @@ The trained model can be used with a command line interface:
 ```python predict.py --path <path-to-video>```
 
 This will output the classification of real or fake, and how confident the decision is.
+
+![Interface](./figures/interface.PNG)
