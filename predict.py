@@ -15,6 +15,6 @@ path = args.path
 url = args.url
 
 if path:
-    predict_video(path)
+    predict_video(path, printing=True)
 elif url:
-    predict_youtube(url)
+    predict_youtube(url, printing=True)

@@ -16,7 +16,7 @@ with open(f'{current_dir}/model/model.json', 'r') as json_file:
     model = model_from_json(json_file.read())
     model.load_weights(f'{current_dir}/model/model.h5')
 
-def get_votes(video, model=model, sample=19):
+def get_votes(video, model=model, sample=39):
     '''
     Samples a video capture into frames, run prediction with model on frames and returns a list of the predictions (votes)
 
@@ -35,16 +35,16 @@ def get_votes(video, model=model, sample=19):
         detections = []
         video.set(1,i)
         _, frame = video.read() 
-        faces, _ = cv.detect_face(frame, threshold=0.9)
-        for j, (x0,y0,x1,y1) in enumerate(faces):
-            try:
-                face = frame[y0:y1, x0:x1]
-                face = cv2.resize(face, (100,100), interpolation = cv2.INTER_AREA)
-                face = face.astype(np.float32)
-                face /= 255
-                detections.append(face)
-            except Exception:
-                pass
+        try:
+            faces, _ = cv.detect_face(frame, threshold=0.9)
+            for j, (x0,y0,x1,y1) in enumerate(faces):
+                    face = frame[y0:y1, x0:x1]
+                    face = cv2.resize(face, (100,100), interpolation = cv2.INTER_AREA)
+                    face = face.astype(np.float32)
+                    face /= 255
+                    detections.append(face)
+        except Exception:   # Error in face detection or dimensions
+            pass
         vote = 0
         for face in detections:
             face = face.reshape((1,len(face[0]),len(face[1]),3))
@@ -53,7 +53,7 @@ def get_votes(video, model=model, sample=19):
         votes.append(int(vote >= 1))
     return votes
 
-def get_prediction(votes, id, is_youtube):
+def get_prediction(votes, id, is_youtube, printing=False):
     '''
     Aggregates the votes (predictions) and outputs an answer
 
@@ -67,21 +67,25 @@ def get_prediction(votes, id, is_youtube):
     '''
     reals = votes.count(1)
     fakes = votes.count(0)
-    if reals >= fakes:
-        result = 'REAL'
-        conf = (reals/(reals+fakes))*100
-    else:
-        result = 'FAKE'
-        conf = (fakes/(reals+fakes))*100
-    if is_youtube:
-        print(f'{id}: {result} {round(conf,2)}%')
-    else: 
-        video_name = os.path.basename(id)
-        print(f'{video_name}: {result} {round(conf,2)}%')
-    return result, conf
+    try:
+        if reals >= fakes:
+            result = 'REAL'
+            conf = (reals/(reals+fakes))*100
+        else:
+            result = 'FAKE'
+            conf = (fakes/(reals+fakes))*100
+    except Exception:   # Found no faces
+        return -1, 0.0
+    if printing:
+        if is_youtube:
+            print(f'{id}: {result} {round(conf,2)}%')
+        else: 
+            video_name = os.path.basename(id)
+            print(f'{video_name}: {result} {round(conf,2)}%')
+    return 1 if result == 'REAL' else 0, conf
 
 
-def predict_video(path):
+def predict_video(path, printing=False):
     '''
     Classifies video in path as real or fake.
 
@@ -93,9 +97,9 @@ def predict_video(path):
     '''
     video = cv2.VideoCapture(path)
     votes = get_votes(video)
-    return get_prediction(votes,path,is_youtube=False)
+    return get_prediction(votes,path,is_youtube=False, printing=printing)
 
-def predict_youtube(url):
+def predict_youtube(url, printing=False):
     '''
     Classifies youtube video with url as real or fake
 
@@ -108,7 +112,7 @@ def predict_youtube(url):
 
     vPafy = pafy.new(url)
     name = f'{vPafy.title} ({url})'
-    play = vPafy.getbestvideo()
+    play = vPafy.getbestvideo(preftype='mp4')
     video = cv2.VideoCapture(play.url)
     votes = get_votes(video)
-    return get_prediction(votes, name, is_youtube=True)
+    return get_prediction(votes, name, is_youtube=True, printing=printing)
