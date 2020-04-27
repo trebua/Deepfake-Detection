@@ -5,6 +5,18 @@ PySpark is used to distribute the preprocessing of a labelled [dataset](https://
 
 The project is done as a part of the module "CS4225/CS5425 Big Data Systems for Data Science" at the National University of Singapore.
 
+![Interface](./figures/interface.PNG)
+
+## How To Use
+The trained model can be used on a local video or a YouTube video with a command-line interface. 
+This will output the classification of real or fake, and how confident the decision is.
+
+### YouTube url
+```python predict.py --url <youtube-video-url>```
+
+### Local path
+```python predict.py --path <path-to-video>```
+
 ## Prerequisites
 * OpenCV: ```pip install opencv-python```
 * CVLib: ```pip install cvlib```
@@ -61,18 +73,6 @@ The model is a CNN, and can be trained in CNN.py or the notebook (with plotting)
 It has the following architecture:
 
 ![CNN architecture](./figures/architecture_custom.PNG)
-
-## How To Use
-The trained model can be used on a local video or a YouTube video with a command-line interface. 
-This will output the classification of real or fake, and how confident the decision is.
-
-### YouTube url
-```python predict.py --url <youtube-video-url>```
-
-### Local path
-```python predict.py --path <path-to-video>```
-
-![Interface](./figures/interface.PNG)
 
 ## Results
 ### Accuracy and Loss
