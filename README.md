@@ -14,10 +14,12 @@ The project is done as a part of the module "CS4225/CS5425 Big Data Systems for 
 * Tensorflow: ```pip install tensorflow```
 * MatPlotLib: ```pip install matplotlib```
 * Pydot: ```pip install pydot```
+* Pafy: ```pip install pafy```
+* YouTube-DL: ```pip install youtube_dl```
 
 Or simply:
 
-```pip install opencv-python cvlib pyspark numpy keras tensorflow matplotlib pytdot```
+```pip install opencv-python cvlib pyspark numpy keras tensorflow matplotlib pytdot youtube_dl pafy```
 
 ## Dataset
 The dataset should be stored in a folder named *data*, using the dataset gathered with these instructions:
@@ -61,11 +63,14 @@ It has the following architecture:
 ![CNN architecture](./figures/architecture_custom.PNG)
 
 ## How To Use
-The trained model can be used with a command line interface:
-
-```python predict.py --path <path-to-video>```
-
+The trained model can be used on a local video or a YouTube video with a command-line interface. 
 This will output the classification of real or fake, and how confident the decision is.
+
+### YouTube url
+```python predict.py --url <youtube-video-url>```
+
+### Local path
+```python predict.py --path <path-to-video>```
 
 ![Interface](./figures/interface.PNG)
 
